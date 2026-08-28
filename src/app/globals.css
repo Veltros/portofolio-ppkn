@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  /* Mengubah warna 'red' menjadi nuansa Cokelat Batik */
+  --color-red-50: #fdf8f5;
+  --color-red-100: #f5ebe6;
+  --color-red-200: #e8d5c8;
+  --color-red-500: #8a5a44;
+  --color-red-600: #6b3e2e;
+  --color-red-700: #4a2a1f;
+  --color-red-800: #361f17;
+  
+  /* Mengubah warna abu-abu (background/text) menjadi nuansa Krem yang hangat */
+  --color-gray-50: #faf7f2;
+  --color-gray-100: #f0ebe1;
+  --color-gray-800: #4e342e;
+  --color-gray-900: #3e2723;
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+section {
+  background-color: color-mix(in srgb, var(--color-gray-50) 90%, transparent) !important;
+  backdrop-filter: blur(8px);
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-image: 
+    linear-gradient(rgba(250, 247, 242, 0.85), rgba(250, 247, 242, 0.85)), 
+    url('/images/batik-bg.jpg');
+  background-size: cover, 400px;
+  background-position: center, 0px 0px;
+  background-attachment: fixed, fixed;
+  animation: batikDrift 120s linear infinite;
+}
+
+@keyframes batikDrift {
+  0% {
+    background-position: center, 0px 0px;
+  }
+  100% {
+    background-position: center, 400px 400px;
+  }
+}
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
