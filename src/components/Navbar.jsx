@@ -77,10 +77,12 @@ export default function Navbar() {
           <div className="flex justify-between items-center">
             
             {/* Logo */}
-            <a href="#home" onClick={(e) => handleClick(e, '#home')} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full border border-red-600 flex items-center justify-center text-red-600">
-                <span className="font-bold text-xs">ID</span>
-              </div>
+            <a href="#home" onClick={(e) => handleClick(e, '#home')} className="flex items-center gap-3">
+              <img 
+                src="/images/logo.jpg" 
+                alt="Garuda Pancasila" 
+                className="w-9 h-9 object-contain"
+              />
               <span className="text-xl font-bold text-gray-800">
                 Portofolio<span className="text-red-600 font-normal">Pancasila</span>
               </span>
