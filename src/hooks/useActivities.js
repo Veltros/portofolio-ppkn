@@ -1,51 +1,128 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { activities as defaultActivities } from '../data/activities';
+import { db } from '../utils/firebase';
+import { collection, doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 
 export function useActivities() {
   const [activities, setActivities] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load dari localStorage saat pertama kali di-mount
   useEffect(() => {
-    const saved = localStorage.getItem('pkn_activities');
-    if (saved) {
+    // 1. Ambil data cache dari localStorage untuk render instan pertama kali
+    const cached = localStorage.getItem('pkn_activities');
+    if (cached) {
       try {
-        setActivities(JSON.parse(saved));
+        setActivities(JSON.parse(cached));
       } catch (e) {
         setActivities(defaultActivities);
       }
     } else {
       setActivities(defaultActivities);
-      localStorage.setItem('pkn_activities', JSON.stringify(defaultActivities));
     }
-    setIsLoaded(true);
+
+    let isSeeding = false;
+
+    // 2. Langganan (Subscribe) realtime ke Firebase Firestore
+    try {
+      const unsubscribe = onSnapshot(
+        collection(db, 'activities'),
+        async (snapshot) => {
+          if (snapshot.empty && !isSeeding) {
+            isSeeding = true;
+            // Jika database Firestore masih kosong, isi dengan kegiatan awal otomatis
+            try {
+              for (const item of defaultActivities) {
+                await setDoc(doc(db, 'activities', String(item.id)), item);
+              }
+            } catch (seedErr) {
+              console.warn('Gagal seeding data awal ke Firestore:', seedErr);
+            }
+            isSeeding = false;
+          } else if (!snapshot.empty) {
+            const list = snapshot.docs.map((docSnap) => {
+              const data = docSnap.data();
+              return {
+                ...data,
+                id: Number(docSnap.id) || data.id,
+              };
+            });
+
+            // Urutkan kegiatan berdasarkan ID
+            list.sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+
+            setActivities(list);
+            try {
+              localStorage.setItem('pkn_activities', JSON.stringify(list));
+            } catch (e) {}
+          }
+          setIsLoaded(true);
+        },
+        (error) => {
+          console.warn('Firestore snapshot listener error (menggunakan data lokal):', error);
+          setIsLoaded(true);
+        }
+      );
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.error('Inisialisasi Firestore listener gagal:', err);
+      setIsLoaded(true);
+    }
   }, []);
 
-  const saveActivities = (newActivities) => {
-    setActivities(newActivities);
+  const addActivity = async (activity) => {
+    const newId = activities.length > 0 ? Math.max(...activities.map(a => Number(a.id) || 0)) + 1 : 1;
+    const newActivity = { ...activity, id: newId, createdAt: Date.now() };
+
+    // Update state secara optimistik di layar lokal
+    setActivities(prev => {
+      const updated = [...prev, newActivity];
+      try {
+        localStorage.setItem('pkn_activities', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    // Simpan ke Firebase Firestore agar semua perangkat langsung tersinkron
     try {
-      localStorage.setItem('pkn_activities', JSON.stringify(newActivities));
-    } catch (e) {
-      console.error('Gagal menyimpan ke localStorage:', e);
-      if (typeof window !== 'undefined') {
-        alert('Penyimpanan browser penuh! Foto yang dipilih mungkin terlalu besar atau data terlalu banyak.');
-      }
+      await setDoc(doc(db, 'activities', String(newId)), newActivity);
+    } catch (err) {
+      console.error('Gagal menambahkan kegiatan ke Firestore:', err);
+      alert('Perhatian: Kegiatan tersimpan di browser lokal, namun gagal terkirim ke Firestore. Pastikan Firestore Database sudah dibuat di Firebase Console.');
     }
   };
 
-  const addActivity = (activity) => {
-    const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1;
-    const newActivity = { ...activity, id: newId };
-    saveActivities([...activities, newActivity]);
+  const updateActivity = async (id, updatedData) => {
+    setActivities(prev => {
+      const updated = prev.map(a => a.id === id ? { ...a, ...updatedData } : a);
+      try {
+        localStorage.setItem('pkn_activities', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    try {
+      await setDoc(doc(db, 'activities', String(id)), updatedData, { merge: true });
+    } catch (err) {
+      console.error('Gagal memperbarui kegiatan di Firestore:', err);
+    }
   };
 
-  const updateActivity = (id, updatedData) => {
-    saveActivities(activities.map(a => a.id === id ? { ...a, ...updatedData } : a));
-  };
+  const deleteActivity = async (id) => {
+    setActivities(prev => {
+      const updated = prev.filter(a => a.id !== id);
+      try {
+        localStorage.setItem('pkn_activities', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
 
-  const deleteActivity = (id) => {
-    saveActivities(activities.filter(a => a.id !== id));
+    try {
+      await deleteDoc(doc(db, 'activities', String(id)));
+    } catch (err) {
+      console.error('Gagal menghapus kegiatan di Firestore:', err);
+    }
   };
 
   return {
