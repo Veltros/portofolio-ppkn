@@ -24,7 +24,14 @@ export function useActivities() {
 
   const saveActivities = (newActivities) => {
     setActivities(newActivities);
-    localStorage.setItem('pkn_activities', JSON.stringify(newActivities));
+    try {
+      localStorage.setItem('pkn_activities', JSON.stringify(newActivities));
+    } catch (e) {
+      console.error('Gagal menyimpan ke localStorage:', e);
+      if (typeof window !== 'undefined') {
+        alert('Penyimpanan browser penuh! Foto yang dipilih mungkin terlalu besar atau data terlalu banyak.');
+      }
+    }
   };
 
   const addActivity = (activity) => {

@@ -1,11 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useActivities } from '../hooks/useActivities';
 import { useAuth } from '../hooks/useAuth';
 import ActivityCard from './ActivityCard';
 import ActivityFilter from './ActivityFilter';
 import ActivityModal from './ActivityModal';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Upload, Link as LinkIcon, Trash2, Loader2, CheckCircle2, Image as ImageIcon } from 'lucide-react';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 export default function ActivityTimeline() {
   const [filter, setFilter] = useState(0);
@@ -28,6 +29,32 @@ export default function ActivityTimeline() {
     month: 'Bulan 1 (Agustus)',
     week: 'Minggu 3'
   });
+
+  // Cloudinary Upload states
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [uploadMode, setUploadMode] = useState('file'); // 'file' | 'url'
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelected = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Harap pilih file gambar (format JPG, PNG, atau WebP).');
+      return;
+    }
+    setUploadingImage(true);
+    setUploadError('');
+    try {
+      const secureUrl = await uploadToCloudinary(file);
+      setFormData((prev) => ({ ...prev, image: secureUrl }));
+    } catch (err) {
+      console.error('Cloudinary upload error:', err);
+      setUploadError(err.message || 'Gagal mengupload foto ke Cloudinary.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const standardMonths = [
     'Bulan 1 (Agustus)',
@@ -88,6 +115,8 @@ export default function ActivityTimeline() {
   const handleEdit = (activity) => {
     setIsEditing(true);
     setCurrentId(activity.id);
+    setUploadError('');
+    setUploadMode(activity.image && !activity.image.startsWith('http') ? 'url' : 'file');
     setFormData({
       day: activity.day || 'Senin',
       date: activity.date || '',
@@ -112,6 +141,7 @@ export default function ActivityTimeline() {
     setShowForm(false);
     setIsEditing(false);
     setCurrentId(null);
+    setUploadError('');
     setFormData({
       day: 'Senin',
       date: '',
@@ -302,28 +332,182 @@ export default function ActivityTimeline() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi Foto (Contoh: /images/profile.jpg)</label>
-                  <input 
-                    type="text" 
-                    value={formData.image} 
-                    onChange={e => setFormData({...formData, image: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-semibold text-gray-800">
+                      Foto Dokumentasi Kegiatan
+                    </label>
+                    <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg text-xs font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setUploadMode('file')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition ${
+                          uploadMode === 'file'
+                            ? 'bg-white text-red-600 shadow-sm font-semibold'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <Upload size={13} /> Upload File
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMode('url')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition ${
+                          uploadMode === 'url'
+                            ? 'bg-white text-red-600 shadow-sm font-semibold'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <LinkIcon size={13} /> URL / Path
+                      </button>
+                    </div>
+                  </div>
+
+                  {uploadMode === 'file' ? (
+                    <div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleFileSelected(e.target.files[0]);
+                          }
+                        }}
+                      />
+
+                      {uploadingImage ? (
+                        <div className="border-2 border-dashed border-red-300 bg-red-50/50 rounded-xl p-6 text-center flex flex-col items-center justify-center gap-2">
+                          <Loader2 size={28} className="text-red-600 animate-spin" />
+                          <p className="font-semibold text-gray-800 text-sm">Mengunggah foto ke Cloudinary...</p>
+                          <p className="text-xs text-gray-500">Foto sedang diproses agar dapat dilihat secara online.</p>
+                        </div>
+                      ) : formData.image ? (
+                        <div className="flex items-center gap-4 p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
+                          <img
+                            src={formData.image}
+                            alt="Preview"
+                            className="w-20 h-20 object-cover rounded-lg border border-gray-300 shadow-sm flex-shrink-0"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://placehold.co/200x200?text=Preview+Error";
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-bold mb-1">
+                              <CheckCircle2 size={14} />
+                              <span>Foto Berhasil Diunggah ke Cloudinary</span>
+                            </div>
+                            <p className="text-xs text-gray-500 truncate font-mono" title={formData.image}>
+                              {formData.image}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                              >
+                                Ganti Foto
+                              </button>
+                              <span className="text-gray-300">•</span>
+                              <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, image: '' })}
+                                className="text-xs font-semibold text-red-600 hover:text-red-800 flex items-center gap-1 transition"
+                              >
+                                <Trash2 size={12} /> Hapus
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setDragOver(true);
+                          }}
+                          onDragLeave={() => setDragOver(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setDragOver(false);
+                            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                              handleFileSelected(e.dataTransfer.files[0]);
+                            }
+                          }}
+                          onClick={() => fileInputRef.current?.click()}
+                          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 ${
+                            dragOver
+                              ? 'border-red-500 bg-red-50'
+                              : 'border-gray-300 hover:border-red-400 bg-gray-50 hover:bg-red-50/20'
+                          }`}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-1">
+                            <Upload size={22} />
+                          </div>
+                          <p className="text-sm font-semibold text-gray-800">
+                            Pilih Foto dari Perangkat (Laptop / HP)
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Klik di sini atau seret file ke dalam kotak (JPG, PNG, WebP)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Contoh: https://... atau /images/kegiatan-1.jpg"
+                        value={formData.image}
+                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                        className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none text-sm"
+                      />
+                      {formData.image && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <img
+                            src={formData.image}
+                            alt="Preview URL"
+                            className="w-10 h-10 object-cover rounded border"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                          <span className="text-xs text-gray-500">Pratinjau gambar</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {uploadError && (
+                    <p className="text-xs text-red-600 font-medium mt-2 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                      ⚠️ {uploadError}
+                    </p>
+                  )}
                 </div>
 
                 <div className="md:col-span-2 mt-4 pt-4 border-t border-gray-100 flex gap-3 justify-end">
                   <button 
                     type="button" 
-                    onClick={() => setShowForm(false)}
+                    onClick={() => { setShowForm(false); setUploadError(''); }}
                     className="px-5 py-2.5 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit" 
-                    className="px-5 py-2.5 rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 transition"
+                    disabled={uploadingImage}
+                    className="px-5 py-2.5 rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
-                    {isEditing ? 'Simpan Perubahan' : 'Tambah Kegiatan'}
+                    {uploadingImage ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Mengunggah Foto...</span>
+                      </>
+                    ) : isEditing ? (
+                      'Simpan Perubahan'
+                    ) : (
+                      'Tambah Kegiatan'
+                    )}
                   </button>
                 </div>
               </form>
@@ -343,6 +527,8 @@ export default function ActivityTimeline() {
           <button 
             onClick={() => {
               setIsEditing(false);
+              setUploadError('');
+              setUploadMode('file');
               setFormData({ 
                 day: 'Senin', 
                 date: '', 
