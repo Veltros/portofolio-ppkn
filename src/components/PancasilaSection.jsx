@@ -7,22 +7,42 @@ export default function PancasilaSection() {
     { num: 5, text: "Keadilan Sosial bagi Seluruh Rakyat Indonesia" }
   ];
 
+  const getColorClass = (num) => {
+    switch (num) {
+      case 1: return "border-orange-200 hover:border-orange-600";
+      case 2: return "border-lime-200 hover:border-lime-600";
+      case 3: return "border-red-200 hover:border-red-700";
+      case 4: return "border-amber-200 hover:border-amber-600";
+      case 5: return "border-teal-200 hover:border-teal-600";
+      default: return "border-gray-200 hover:border-gray-600";
+    }
+  };
+
   return (
-    <section id="sila" className="py-20 bg-white">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">5 Sila Pancasila</h2>
-          <div className="w-24 h-1 bg-red-600 mx-auto mt-4 rounded-full"></div>
+    <section id="sila" className="py-24 bg-white">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-heading text-gray-900 mb-6">5 Sila Pancasila</h2>
+          <div className="flex items-center justify-center gap-4 text-red-700/60">
+            <span className="w-12 h-[1px] bg-red-700/30"></span>
+            <span className="text-xl">~</span>
+            <span className="w-12 h-[1px] bg-red-700/30"></span>
+          </div>
         </div>
 
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-8">
           {silaList.map((sila) => (
-            <div key={sila.num} className="bg-gray-50 border border-gray-100 rounded-xl p-6 md:p-8 flex items-center gap-6 hover:shadow-md transition-shadow group">
-              <div className="w-16 h-16 flex-shrink-0 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-red-600">{sila.num}</span>
+            <div 
+              key={sila.num} 
+              className={`bg-gray-50/50 p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10 border-l-[6px] transition-all duration-300 ${getColorClass(sila.num)} hover:bg-gray-50 group`}
+            >
+              <div className="flex-shrink-0">
+                <span className="text-5xl md:text-6xl font-heading text-gray-300 group-hover:text-gray-400 transition-colors">
+                  0{sila.num}
+                </span>
               </div>
-              <div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-800 group-hover:text-red-600 transition-colors">
+              <div className="flex-1">
+                <h3 className="text-2xl md:text-3xl font-heading text-gray-800 leading-snug group-hover:text-gray-950 transition-colors">
                   {sila.text}
                 </h3>
               </div>

@@ -9,15 +9,15 @@ export default function ActivityFilter({ currentFilter, setFilter }) {
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-10">
+    <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
       {filters.map((filter) => (
         <button
           key={filter.id}
           onClick={() => setFilter(filter.id)}
-          className={`px-4 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-300 ${
+          className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 border ${
             currentFilter === filter.id
-              ? 'bg-red-600 text-white shadow-md'
-              : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+              ? 'bg-red-100 border-red-200 text-red-700'
+              : 'bg-transparent border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
           }`}
         >
           {filter.label}

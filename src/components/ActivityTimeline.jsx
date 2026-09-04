@@ -157,26 +157,30 @@ export default function ActivityTimeline() {
 
   return (
     <>
-      <section id="kegiatan" className="py-20 bg-gray-50 min-h-screen relative">
+      <section id="kegiatan" className="py-20 min-h-screen relative">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Kegiatan Sehari-hari</h2>
-            <div className="w-24 h-1 bg-red-600 mx-auto mt-4 mb-8 rounded-full"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Berikut adalah dokumentasi kegiatan yang saya lakukan sebagai bentuk penerapan nilai-nilai Pancasila.
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="w-8 h-px bg-red-600/30"></span>
+              <span className="text-xs font-medium tracking-[0.15em] uppercase text-red-600/60">Kegiatan</span>
+              <span className="w-8 h-px bg-red-600/30"></span>
+            </div>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-4">Kegiatan Sehari-hari</h2>
+            <p className="text-gray-500 max-w-lg mx-auto text-sm leading-relaxed">
+              Dokumentasi kegiatan yang mencerminkan penerapan nilai-nilai Pancasila.
             </p>
           </div>
 
           {/* Month Selector Tabs */}
-          <div className="flex justify-center flex-wrap gap-2 mb-8">
+          <div className="flex justify-center flex-wrap gap-1.5 mb-6">
             {uniqueMonths.map((m) => (
               <button
                 key={m}
                 onClick={() => setSelectedMonth(m)}
-                className={`px-5 py-2.5 rounded-full font-bold transition-all duration-200 text-sm ${
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 text-xs ${
                   activeMonth === m
-                    ? 'bg-amber-800 text-white shadow-md'
-                    : 'bg-white hover:bg-amber-50 text-amber-900 border border-amber-800/10'
+                    ? 'bg-red-700 text-white'
+                    : 'bg-white/60 hover:bg-white text-gray-600 border border-gray-200/60'
                 }`}
               >
                 {m}
@@ -187,19 +191,19 @@ export default function ActivityTimeline() {
           <ActivityFilter currentFilter={filter} setFilter={setFilter} />
 
           {sortedWeeks.length > 0 ? (
-            <div className="space-y-12 mt-12">
+            <div className="space-y-10 mt-10">
               {sortedWeeks.map((weekName) => (
-                <div key={weekName} className="border-l-2 border-dashed border-amber-800/30 pl-6 ml-2 relative">
+                <div key={weekName} className="border-l border-red-200/40 pl-6 ml-2 relative">
                   {/* Week Dot indicator */}
-                  <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-amber-800"></div>
+                  <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-red-600"></div>
                   
-                  <h3 className="text-xl font-extrabold text-amber-900 mb-6 flex items-center gap-2">
-                    <span className="bg-amber-100/70 border border-amber-800/10 px-4 py-1.5 rounded-xl text-sm font-bold shadow-sm">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-5 flex items-center gap-2">
+                    <span className="bg-red-50/60 border border-red-200/30 px-3 py-1 rounded-lg text-xs font-semibold text-red-700">
                       {weekName}
                     </span>
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {groupedByWeek[weekName].map((activity) => (
                       <ActivityCard 
                         key={activity.id} 
@@ -215,8 +219,8 @@ export default function ActivityTimeline() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <p className="text-xl text-gray-500">Belum ada kegiatan yang tercatat untuk filter ini.</p>
+            <div className="text-center py-16">
+              <p className="text-sm text-gray-400">Belum ada kegiatan yang tercatat untuk filter ini.</p>
             </div>
           )}
         </div>
@@ -231,22 +235,22 @@ export default function ActivityTimeline() {
 
         {/* Admin Form Modal */}
         {showForm && isAdmin && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative my-8">
-              <div className="flex justify-between items-center p-6 border-b">
-                <h3 className="text-xl font-bold text-gray-900">{isEditing ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'}</h3>
-                <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
-                  <X size={24} />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative my-8 animate-scale-in border border-gray-100">
+              <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900">{isEditing ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'}</h3>
+                <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                  <X size={20} />
                 </button>
               </div>
               
               <form onSubmit={handleSubmit} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Hari</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Hari</label>
                   <select 
                     value={formData.day} 
                     onChange={e => setFormData({...formData, day: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   >
                     {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map(d => (
@@ -256,23 +260,23 @@ export default function ActivityTimeline() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Tanggal</label>
                   <input 
                     type="text" 
                     placeholder="Contoh: 17 Agustus 2026"
                     value={formData.date} 
                     onChange={e => setFormData({...formData, date: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bulan Tugas</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Bulan Tugas</label>
                   <select 
                     value={formData.month} 
                     onChange={e => setFormData({...formData, month: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   >
                     {standardMonths.map(m => (
@@ -282,11 +286,11 @@ export default function ActivityTimeline() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Minggu Ke-</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Minggu Ke-</label>
                   <select 
                     value={formData.week} 
                     onChange={e => setFormData({...formData, week: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   >
                     {['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'].map(w => (
@@ -296,22 +300,22 @@ export default function ActivityTimeline() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Judul Kegiatan</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Judul Kegiatan</label>
                   <input 
                     type="text" 
                     value={formData.title} 
                     onChange={e => setFormData({...formData, title: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Sila Pancasila (1-5)</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Sila Pancasila (1-5)</label>
                   <select 
                     value={formData.sila} 
                     onChange={handleSilaChange}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   >
                     {[1, 2, 3, 4, 5].map(num => (
@@ -321,12 +325,12 @@ export default function ActivityTimeline() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wider">Deskripsi Singkat</label>
                   <textarea 
                     rows={4}
                     value={formData.description} 
                     onChange={e => setFormData({...formData, description: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     required
                   />
                 </div>
@@ -485,18 +489,18 @@ export default function ActivityTimeline() {
                   )}
                 </div>
 
-                <div className="md:col-span-2 mt-4 pt-4 border-t border-gray-100 flex gap-3 justify-end">
+                <div className="md:col-span-2 mt-2 pt-4 border-t border-gray-100 flex gap-3 justify-end">
                   <button 
                     type="button" 
                     onClick={() => { setShowForm(false); setUploadError(''); }}
-                    className="px-5 py-2.5 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition"
+                    className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit" 
                     disabled={uploadingImage}
-                    className="px-5 py-2.5 rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-5 py-2 rounded-xl text-sm font-medium text-white bg-red-700 hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {uploadingImage ? (
                       <>
@@ -518,11 +522,11 @@ export default function ActivityTimeline() {
 
       {/* Admin Toolbar (Sticky Bottom) */}
       {isAdmin && (
-        <div className="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-800 text-white z-[90] shadow-2xl py-3 px-4 md:px-8 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="font-semibold hidden md:inline">Mode Admin Aktif</span>
-            <span className="font-semibold md:hidden">Admin</span>
+        <div className="fixed bottom-0 left-0 w-full bg-gray-900/95 backdrop-blur-md border-t border-gray-800/50 text-white z-[90] py-2.5 px-4 md:px-8 flex justify-between items-center">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-medium hidden md:inline text-gray-300">Mode Admin Aktif</span>
+            <span className="text-xs font-medium md:hidden text-gray-300">Admin</span>
           </div>
           <button 
             onClick={() => {
@@ -542,9 +546,9 @@ export default function ActivityTimeline() {
               });
               setShowForm(true);
             }}
-            className="flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-red-700 transition"
+            className="flex items-center gap-1.5 bg-red-700 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-800 transition-colors"
           >
-            <Plus size={18} /> <span className="hidden md:inline">Tambah Kegiatan Baru</span>
+            <Plus size={14} /> <span className="hidden md:inline">Tambah Kegiatan Baru</span>
             <span className="md:hidden">Tambah</span>
           </button>
         </div>

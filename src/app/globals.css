@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Mengubah warna 'red' menjadi nuansa Cokelat Batik */
+  /* Warm Batik-inspired color palette */
   --color-red-50: #fdf8f5;
   --color-red-100: #f5ebe6;
   --color-red-200: #e8d5c8;
@@ -9,45 +9,152 @@
   --color-red-600: #6b3e2e;
   --color-red-700: #4a2a1f;
   --color-red-800: #361f17;
-  
-  /* Mengubah warna abu-abu (background/text) menjadi nuansa Krem yang hangat */
+  --color-red-900: #2a1710;
+  --color-red-950: #1a0e0a;
+
   --color-gray-50: #faf7f2;
   --color-gray-100: #f0ebe1;
+  --color-gray-200: #e2dbd0;
+  --color-gray-300: #cdc3b5;
+  --color-gray-400: #a89a8c;
+  --color-gray-500: #8a7c6e;
+  --color-gray-600: #6e6358;
+  --color-gray-700: #5a5049;
   --color-gray-800: #4e342e;
   --color-gray-900: #3e2723;
+
+  --color-amber-50: #fdf8ef;
+  --color-amber-100: #f5ece0;
+  --color-amber-800: #6b4226;
+  --color-amber-900: #553520;
+
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 62, 39, 35;
+  --background-rgb: 250, 247, 242;
 }
 
-section {
-  background-color: color-mix(in srgb, var(--color-gray-50) 90%, transparent) !important;
-  backdrop-filter: blur(8px);
+/* ── Base ── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background-image: 
-    linear-gradient(rgba(250, 247, 242, 0.85), rgba(250, 247, 242, 0.85)), 
+  font-family: var(--font-body);
+  background-color: #faf7f2;
+  background-image:
+    linear-gradient(rgba(250, 247, 242, 0.88), rgba(250, 247, 242, 0.88)),
     url('/images/batik-bg.jpg');
   background-size: cover, 400px;
   background-position: center, 0px 0px;
   background-attachment: fixed, fixed;
-  animation: batikDrift 120s linear infinite;
+  animation: batikDrift 180s linear infinite;
 }
 
+section {
+  background-color: color-mix(in srgb, var(--color-gray-50) 92%, transparent) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* ── Selection ── */
+::selection {
+  background-color: #e8d5c8;
+  color: #3e2723;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cdc3b5;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a89a8c;
+}
+
+/* ── Focus styles ── */
+*:focus-visible {
+  outline: 2px solid #8a5a44;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Animations ── */
 @keyframes batikDrift {
-  0% {
-    background-position: center, 0px 0px;
+  0% { background-position: center, 0px 0px; }
+  100% { background-position: center, 400px 400px; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
   }
-  100% {
-    background-position: center, 400px 400px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Utility classes ── */
 @layer utilities {
   .animation-delay-2000 {
     animation-delay: 2s;
@@ -55,23 +162,45 @@ body {
   .animation-delay-4000 {
     animation-delay: 4s;
   }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out both;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out both;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out both;
+  }
+
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  /* Stagger children animations */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
 }
 
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
+/* ── Smooth image loading ── */
+img {
+  transition: opacity 0.3s ease;
 }
 
-.animate-blob {
-  animation: blob 7s infinite;
+/* ── Better link transitions ── */
+a {
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
